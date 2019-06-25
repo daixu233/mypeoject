@@ -27,3 +27,9 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## 路由信息
+|路由名|地址|
+|---|---|
+|/|首页|
+|/loan/home|借款首页|
