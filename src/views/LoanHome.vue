@@ -58,12 +58,21 @@ export default {
   name: 'home',
   data() {
       return {
-          some: '1233'
+          some: '1233',
+          userInfo: {}
       }
   },
   components: {
     NavBar
-  }
+  },
+  mounted() {
+    this.axios.get(`/user/info`).then(res=>{
+        if (res) {
+            // console.log(res)
+            console.log(res)
+        }
+    })
+  },
 }
 </script>
 

@@ -1,8 +1,13 @@
 import axios from 'axios'
 import qs from 'qs'
+import { getLocal } from './util'
 
 axios.interceptors.request.use(config => {
   config.data = qs.stringify(config.data)
+  const token = getLocal('token');
+  if (token) {
+    config.headers['token'] = token;
+  }
   // Vue.$vux.loading.show({
   //   text: '加载中....'
   // })

@@ -7,7 +7,7 @@
     <div class="center-bar" />
     <div class="bar-side">
         <div class="bar-icon" />
-        <div class="bar-text">我的</div>
+        <div class="bar-text">银行卡</div>
     </div>
   </div>
 </template>

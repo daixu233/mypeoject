@@ -13,14 +13,18 @@
         <input class="inner" v-model.number="phone" maxlength="11" placeholder="手机号" />
     </div>
     <div class="input-out second">
-        <input class="inner short" placeholder="短信验证码" />
-        <span class="valid-btn" v-on:click="getValidCode">获取验证码</span>
+        <input class="inner short" v-model.number="valid" maxlength="4" placeholder="短信验证码" />
+        <span v-if="!hasSend" class="valid-btn" v-on:click="getValidCode">获取验证码</span>
+        <span v-if="hasSend" class="valid-btn disabled">重新获取({{timeMark}}s)</span>
     </div>
-    <div class="submit-btn" @click="showWarnning">登录</div>
+    <div class="submit-btn" @click="loginOperation">登录</div>
   </div>
 </template>
 
 <script>
+import { saveLocal } from '../utils/util'
+
+const timeCount = 59
 export default {
   name: 'HelloWorld',
   props: {
@@ -30,21 +34,78 @@ export default {
       return {
           phone: '',
           valid: '',
-          maxlength: 11
+          maxlength: 11,
+          hasSend: false,
+          timeMark: timeCount
       }
   },
   methods: {
-      showWarnning() {
+      showToastTime(text, type = 'error') {
+        const toast = this.$createToast({
+            type,
+            time: 1000,
+            txt: text
+        })
+        toast.show()
+      },
+      showWarnning(txt) {
           this.$createDialog({
               type: 'alert',
               title: '提示',
-              content: '验证码错误'
+              content: txt
           }).show()
       },
+      validSwitch() {
+          this.hasSend = !this.hasSend
+          const timer = setInterval(() => {
+              if (this.timeMark > 0) {
+                  this.timeMark -= 1
+              } else {
+                  clearInterval(timer)
+                  this.hasSend = !this.hasSend
+                  this.timeMark = timeCount
+              }
+          }, 1000);
+      },
       getValidCode() {
+        if (this.phone === '') {
+            this.showToastTime('手机号不能为空')
+            return
+        } else if (!/^[1][123456789][0-9]{9}$/.test(this.phone)) {
+            this.showToastTime('手机格式不正确')
+            return
+        }
         this.axios.get(`/user/send-code?phone=${this.phone}&type=1`).then(res=>{
             if (res) {
-                console.log(res)
+                if (res.message) {
+                    this.showToastTime(res.message, 'txt')
+                }
+                if (res.status === 0) {
+                    this.validSwitch()
+                }
+            }
+        })
+      },
+      loginOperation() {
+          if (this.valid === '') {
+            this.showToastTime('验证码不能为空')
+            return
+          } else if (!/^[0-9]{4}$/.test(this.valid)) {
+            this.showToastTime('验证码格式不正确')
+            return
+          }
+          this.axios.post('/user/login', {
+              phone: this.phone,
+              code: this.valid
+          }, {some: '123'}).then(res=>{
+            if (res) {
+                if (res.status === 0) {
+                    const { token_id } = res.detail
+                    saveLocal('token', token_id)
+                    this.$router.push('/loan/home')
+                } else {
+                    this.showWarnning(res.message)
+                }
             }
         })
       }
@@ -125,6 +186,10 @@ export default {
     padding: .15rem 0;
     font-size: 13px;
     text-align: center;
+}
+.valid-btn.disabled {
+    color: #BCBEC4;
+    border-color: #BCBEC4;
 }
 .submit-btn {
     width: 6.5rem;
