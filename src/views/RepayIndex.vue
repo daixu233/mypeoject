@@ -5,30 +5,32 @@
         <div class="num-box">
             <div class="amount">
                 <div class="unit">¥</div>
-                <div class="num">30,000</div>
-                <div class="float">.00</div>
+                <div class="num">{{price}}</div>
+                <!-- <div class="float">.00</div> -->
             </div>
-            <div class="delay-btn">延期一天</div>
+            <div class="delay-btn" v-if="is_period !== 1">延期一天</div>
         </div>
         <div class="detail-line">
             <div class="detail-block">
                 <div class="det-tit">已还金额</div>
-                <div class="det-value">1,000.00</div>
+                <div class="det-value">{{payed}}</div>
             </div>
             <div class="detail-block">
                 <div class="det-tit">应还日期</div>
-                <div class="det-value">19.05.30</div>
+                <div class="det-value">{{repayDate}}</div>
             </div>
             <div class="detail-block">
                 <div class="det-tit">借款状态</div>
-                <div class="det-value">已逾期3天</div>
+                <div class="det-value">
+                    {{orderState}}
+                </div>
             </div>
         </div>
     </div>
-    <div class="btn-yellow">立即还款</div>
-    <div class="btn-normal">办理延期</div>
-    <div class="small-tips">您的借款已逾期5天，请立即办理还款或延期(您的逾期信息我们会上报行业征信部门，请抓紧还款消除不良影响)</div>
-    <NavBar />
+    <div class="btn-yellow" @click="handleRepay">立即还款</div>
+    <div class="btn-normal" v-if="is_period !== 1">办理延期</div>
+    <div class="small-tips" v-if="delay_days > 0">您的借款已逾期{{delay_days}}天，请立即办理还款或延期(您的逾期信息我们会上报行业征信部门，请抓紧还款消除不良影响)</div>
+    <NavBar :active="1" />
   </div>
 </template>
 
@@ -40,16 +42,72 @@ import NavBar from '@/components/public/NavBar.vue'
 export default {
   name: 'home',
   data() {
-      return {
-          some: '123'
-      }
+        return {
+            planInfo: {},
+            price: 0,
+            delay_days: 0,
+            is_cancel: 0,
+            is_period: 0,
+            order_id: 0,
+            payed: 0,
+            returnTime: ''
+        }
   },
   mounted() {
       document.title = '无界还款'
+      this.initData()
   },
   components: {
     NavBar
-  }
+  },
+  computed: {
+      orderState() {
+          const delay_days = this.delay_days
+          if (delay_days === 0) {
+              return '借款中'
+          } else if (delay_days > 0) {
+              return `已预期${delay_days}天`
+          }
+          return '未借款'
+      },
+      repayDate() {
+          const returnTime = this.returnTime
+          if (returnTime !== '') {
+              const time = returnTime.split(' ')[0]
+              const info = time.split('-').join('.')
+              return info
+          }
+          return ''
+      }
+  },
+  methods: {
+      initData() {
+        this.axios.get(`/api/loan/pay-info`).then(res=>{
+            if (res) {
+                if (res.status === 0) {
+                    this.planInfo = res.data
+                    const { price, delay_days, is_cancel, is_period, order_id, payed, returnTime } = res.data
+                    this.price = price
+                    this.delay_days = delay_days
+                    this.is_cancel = is_cancel
+                    this.is_period = is_period
+                    this.order_id = order_id
+                    this.payed = payed
+                    this.returnTime = returnTime
+                } else {
+                    this.showAlert(res.message)
+                }
+            }
+        })
+      },
+      handleRepay() {
+          if (this.is_period === 0) {
+              this.$router.push('/repay/std')
+          } else if (this.is_period === 1) {
+              this.$router.push('/repay/divide')
+          }
+      }
+  },
 }
 </script>
 

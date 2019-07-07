@@ -1,10 +1,10 @@
 <template>
   <div class="nav-bar">
-    <div class="bar-side" @click="loanLink">
+    <div class="bar-side" @click="repayLink">
         <div class="bar-icon" :class="barActive1" />
-        <div class="bar-text" :class="barActive1" >借款</div>
+        <div class="bar-text" :class="barActive1" >还款</div>
     </div>
-    <div class="center-bar" />
+    <div class="center-bar" @click="loanLink" />
     <div class="bar-side" @click="bankLink">
         <div class="bar-icon" />
         <div class="bar-text">银行卡</div>
@@ -13,11 +13,23 @@
 </template>
 
 <script>
+import { getLocal } from '../../utils/util'
 
 export default {
   name: 'NavBar',
   props: {
       active: Number
+  },
+  data() {
+      return {
+          order_status: 0
+      }
+  },
+  mounted() {
+      const order_status = getLocal('order_status')
+      if (order_status) {
+          this.order_status = parseInt(order_status)
+      }
   },
   computed: {
       barActive1() {
@@ -28,9 +40,24 @@ export default {
       }
   },
   methods: {
+      showToastTime(text, type = 'error') {
+        const toast = this.$createToast({
+            type,
+            time: 1000,
+            txt: text
+        })
+        toast.show()
+      },
       loanLink() {
+          this.$router.push('/loan/detail')
+      },
+      repayLink() {
+          if (this.order_status === 1) {
+              this.showToastTime('当前借款审核中')
+              return
+          }
           if (this.active !== 1) {
-              this.$router.push('/')
+              this.$router.push('/repay/index')
           }
       },
       bankLink() {

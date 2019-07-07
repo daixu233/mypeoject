@@ -45,7 +45,7 @@
             </div>
         </div>
     </div>
-    <NavBar :active="1" />
+    <NavBar />
   </div>
 </template>
 
@@ -53,6 +53,7 @@
 // @ is an alias to /src
 // 借款首页
 import NavBar from '@/components/public/NavBar.vue'
+import { saveLocal } from '../utils/util'
 
 export default {
   name: 'home',
@@ -71,6 +72,7 @@ export default {
         if (res) {
             if (res.status === 0) {
                 this.loanData = res.loan_data
+                saveLocal('order_status', this.loanData.order_status)
                 this.judgeOrderText()
             } else {
                 this.$createDialog({
@@ -109,6 +111,8 @@ export default {
               } else if (is_period === 0) {
                   this.$router.push('/repay/std')
               }
+          } else if (order_status === 1 || order_status === 3) {
+              this.$router.push('/loan/detail')
           }
       },
       showAlert(txt) {

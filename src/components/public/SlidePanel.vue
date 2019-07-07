@@ -64,7 +64,7 @@ export default {
         left: 0;
         bottom: 0;
         width: 100%;
-        height: 70vh;
+        height: 9.3rem;
         background: #fff;
         z-index: 101;
         transform: translate3d(0px, 100%, 0px)
