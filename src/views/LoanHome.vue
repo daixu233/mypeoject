@@ -2,9 +2,9 @@
   <div class="loan-home">
     <div class="top-bg" />
     <div class="order-box">
-        <div class="out-title">无界钱包</div>
+        <div class="out-title" />
         <div class="order-tips">最高可用额度(元)</div>
-        <div class="order-num">30,000.00</div>
+        <div class="order-num" />
         <div class="icon-line">
             <div class="icon-side">
                 <div class="icon-pic icon1" />
@@ -19,7 +19,7 @@
                 <div class="icon-txt">还款方便</div>
             </div>
         </div>
-        <div class="order-btn">立即申请</div>
+        <div class="order-btn" @click="orderOperation">{{orderTxt}}</div>
     </div>
     <div class="ad-banner" />
     <div class="explain-box">
@@ -45,7 +45,7 @@
             </div>
         </div>
     </div>
-    <NavBar />
+    <NavBar :active="1" />
   </div>
 </template>
 
@@ -59,19 +59,65 @@ export default {
   data() {
       return {
           some: '1233',
-          userInfo: {}
+          loanData: {},
+          orderTxt: '',
       }
   },
   components: {
     NavBar
   },
   mounted() {
-    this.axios.get(`/user/info`).then(res=>{
+    this.axios.post(`/api/loan/loan-index`).then(res=>{
         if (res) {
-            // console.log(res)
-            console.log(res)
+            if (res.status === 0) {
+                this.loanData = res.loan_data
+                this.judgeOrderText()
+            } else {
+                this.$createDialog({
+                    type: 'alert',
+                    title: '提示',
+                    content: res.message
+                }).show()
+            }
         }
     })
+  },
+  methods: {
+      judgeOrderText() {
+          const order_status = this.loanData.order_status
+          // 未借款或者已借已还
+          if (order_status === 0 || order_status === 3) {
+              this.orderTxt = '立即申请'
+          } else if (order_status === 1) { // 借款审核中
+              this.orderTxt = '借款审核中'
+          } else if (order_status === 2) { // 已借未还
+              this.orderTxt = '去还款'
+          } else if (order_status === 4) { // 还款中
+              this.orderTxt = '还款中'
+          } else if (order_status === 5) { // 展期中
+              this.orderTxt = '展期中'
+          }
+      },
+      orderOperation() {
+          const order_status = this.loanData.order_status
+          if (order_status === 0) {
+              this.showAlert('请先去客户端完成借款')
+          } else if (order_status === 2) {
+              const is_period = this.loanData.is_period
+              if (is_period === 1) {
+                  this.$router.push('/repay/divide')
+              } else if (is_period === 0) {
+                  this.$router.push('/repay/std')
+              }
+          }
+      },
+      showAlert(txt) {
+          this.$createDialog({
+              type: 'alert',
+              title: '提示',
+              content: txt
+          }).show()
+      }
   },
 }
 </script>
@@ -101,11 +147,12 @@ body {
 }
 .loan-home .order-box .out-title {
     position: absolute;
-    top: -.8rem;
+    top: -.7rem;
     left: 0;
-    color: #fff;
-    font-size:.5rem;
-    text-shadow:0px 1px 1px rgba(0, 0, 0, 0.07);
+    width: 1.85rem;
+    height: .49rem;
+    background: url('../assets/loan_title.png') no-repeat center center;
+    background-size: contain;
 }
 .loan-home .order-tips {
     text-align: center;
@@ -117,16 +164,15 @@ body {
     margin-top: .4rem;
 }
 .loan-home .order-num {
-    margin-top: .6rem;
-    text-align: center;
-    font-size: .8rem;
-    font-family:Bahnschrift;
-    font-weight:bold;
-    color:rgba(255,102,51,1);
-    line-height: .19rem;
+    margin: 0 auto;
+    margin-top: .3rem;
+    width: 3.46rem;
+    height: .67rem;
+    background: url('../assets/loan_num.png') no-repeat center;
+    background-size: contain;
 }
 .loan-home .icon-line {
-    margin-top: .7rem;
+    margin-top: .3rem;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
@@ -165,7 +211,7 @@ body {
 }
 .loan-home .order-btn {
     margin: 0 auto;
-    margin-top: .3rem;
+    margin-top: .4rem;
     width:3.08rem;
     height: .8rem;
     background:linear-gradient(207deg,rgba(255,178,43,1),rgba(255,151,30,1));
@@ -183,8 +229,8 @@ body {
     margin-top: .28rem;
     width: 6.9rem;
     height: 2.2rem;
-    background:linear-gradient(90deg,rgba(219,60,93,1),rgba(236,118,82,1),rgba(215,62,93,1));
-    border-radius: .1rem;
+    background: url('../assets/banner.png') no-repeat center;
+    background-size: contain;
 }
 .loan-home .explain-box {
     margin: 0 auto;

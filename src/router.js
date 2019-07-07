@@ -38,7 +38,7 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
     },
     {
-      path: '/loan/home',
+      path: '/',
       name: 'loanHome',
       component: LoanHome
     },

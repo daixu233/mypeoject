@@ -12,5 +12,18 @@ module.exports = {
       postCompile: true,
       theme: false
     }
+  },
+  devServer: {
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://wj.hainiudanbao.com/api',
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          "^/api": ''
+        }
+      }
+    }
   }
 }

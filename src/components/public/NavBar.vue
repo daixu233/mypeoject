@@ -1,11 +1,11 @@
 <template>
   <div class="nav-bar">
-    <div class="bar-side">
-        <div class="bar-icon" />
-        <div class="bar-text">还款</div>
+    <div class="bar-side" @click="loanLink">
+        <div class="bar-icon" :class="barActive1" />
+        <div class="bar-text" :class="barActive1" >借款</div>
     </div>
     <div class="center-bar" />
-    <div class="bar-side">
+    <div class="bar-side" @click="bankLink">
         <div class="bar-icon" />
         <div class="bar-text">银行卡</div>
     </div>
@@ -15,7 +15,30 @@
 <script>
 
 export default {
-  name: 'NavBar'
+  name: 'NavBar',
+  props: {
+      active: Number
+  },
+  computed: {
+      barActive1() {
+          const active = this.active
+          if (active === 1) {
+              return 'active'
+          }
+      }
+  },
+  methods: {
+      loanLink() {
+          if (this.active !== 1) {
+              this.$router.push('/')
+          }
+      },
+      bankLink() {
+          if (this.active !== 2) {
+              this.$router.push('/bank/list')
+          }
+      }
+  },
 }
 
 </script>
@@ -43,7 +66,11 @@ export default {
     margin-top: .13rem;
     width: .38rem;
     height: .38rem;
-    background: url('../../assets/bar1.png') no-repeat center center;
+    background: url('../../assets/nav-icon1.png') no-repeat center center;
+    background-size: contain;
+}
+.bar-icon.active {
+    background: url('../../assets/nav-icon1-active.png') no-repeat center center;
     background-size: contain;
 }
 .bar-text {
@@ -52,6 +79,9 @@ export default {
     font-family:PingFangSC-Regular;
     font-weight:400;
     color:rgba(153,153,153,1);
+}
+.bar-text.active {
+    color: #FF971E
 }
 .center-bar {
     width: 1.1rem;

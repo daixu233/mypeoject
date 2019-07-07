@@ -43,11 +43,11 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 axios.defaults.timeout = 60000
 
 if(process.env.NODE_ENV === 'production') {
-  axios.defaults.baseURL = 'http://wj.hainiudanbao.com/api'
+  axios.defaults.baseURL = 'http://wj.hainiudanbao.com'
 } else if(process.env.NODE_ENV === 'testing') {
-  axios.defaults.baseURL = 'http://wj.hainiudanbao.com/api'
+  axios.defaults.baseURL = 'http://wj.hainiudanbao.com'
 } else {
-  axios.defaults.baseURL = 'http://wj.hainiudanbao.com/api'
+  axios.defaults.baseURL = ''
 }
 
 export default axios

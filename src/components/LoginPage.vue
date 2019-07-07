@@ -75,13 +75,11 @@ export default {
             this.showToastTime('手机格式不正确')
             return
         }
-        this.axios.get(`/user/send-code?phone=${this.phone}&type=1`).then(res=>{
+        this.validSwitch()
+        this.axios.get(`/api/user/send-code?phone=${this.phone}&type=1`).then(res=>{
             if (res) {
                 if (res.message) {
                     this.showToastTime(res.message, 'txt')
-                }
-                if (res.status === 0) {
-                    this.validSwitch()
                 }
             }
         })
@@ -94,7 +92,7 @@ export default {
             this.showToastTime('验证码格式不正确')
             return
           }
-          this.axios.post('/user/login', {
+          this.axios.post('/api/user/login', {
               phone: this.phone,
               code: this.valid
           }, {some: '123'}).then(res=>{
@@ -102,7 +100,7 @@ export default {
                 if (res.status === 0) {
                     const { token_id } = res.detail
                     saveLocal('token', token_id)
-                    this.$router.push('/loan/home')
+                    this.$router.push('/')
                 } else {
                     this.showWarnning(res.message)
                 }

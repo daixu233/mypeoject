@@ -1,6 +1,6 @@
 <template>
   <div class="bot-btn">
-    <div class="center-btn">{{title}}</div>
+    <div class="center-btn" @click="$emit('click')">{{title}}</div>
   </div>
 </template>
 
